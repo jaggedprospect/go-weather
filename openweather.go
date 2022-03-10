@@ -181,15 +181,15 @@ func getWeather(c Coordinates, units, period string) (weather OpenWeatherRespons
 	return weather, err
 }
 
-type averageWeather struct {
-	minTemp  float32
-	maxTemp  float32
-	pressure int
-	humidity int
-	uvi      float32
+type AverageWeather struct {
+	MinTemp  float32
+	MaxTemp  float32
+	Pressure int
+	Humidity int
+	Uvi      float32
 }
 
-func (o OpenWeatherResponseOneCall) outputAvgWeather(units string) {
+func (o OpenWeatherResponseOneCall) OutputAvgWeather(units string) {
 	var min, max, uvi float32
 	var prs, hum int
 	for i, day := range *o.Daily {
@@ -202,7 +202,7 @@ func (o OpenWeatherResponseOneCall) outputAvgWeather(units string) {
 		prs += day.Pressure
 		hum += day.Humidity
 	}
-	avg := averageWeather{min / 7, max / 7, prs / 7, hum / 7, uvi / 7}
+	avg := AverageWeather{min / 7, max / 7, prs / 7, hum / 7, uvi / 7}
 
 	var unitAbbr string
 
@@ -214,10 +214,10 @@ func (o OpenWeatherResponseOneCall) outputAvgWeather(units string) {
 	}
 
 	fmt.Printf("AVG WEEKLY WEATHER\nMin: %.1f%s Max: %.1f%s | Pressure: %d mb | Humidity: %d%% | UVI: %.1f\n",
-		avg.minTemp, unitAbbr, avg.maxTemp, unitAbbr, avg.pressure, avg.humidity, avg.uvi)
+		avg.MinTemp, unitAbbr, avg.MaxTemp, unitAbbr, avg.Pressure, avg.Humidity, avg.Uvi)
 }
 
-func (o OpenWeatherResponseOneCall) outputWeeklyForecast(units string) {
+func (o OpenWeatherResponseOneCall) OutputWeeklyForecast(units string) {
 	fmt.Println("WEEKLY FORECAST")
 
 	var unitAbbr string

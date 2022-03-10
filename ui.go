@@ -2,8 +2,10 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -109,6 +111,28 @@ func executeConversion() {
 	time.Sleep(2 * time.Second)
 }
 
+// conversionTool converts the passed input value to the specified units. If 'C' is passed,
+// the value is assumed to be in Fahrenheit degrees, and vice-versa.
+func conversionTool(input, units string) (err error) {
+	i, err := strconv.ParseFloat(input, 32)
+	if err != nil {
+		return err
+	}
+	i = math.Round(i*10) / 10
+
+	if strings.ToUpper(units) == "C" {
+		c := (i - 32) * 5 / 9
+		fmt.Printf("%.1fF = %.1fC\n", i, c)
+	} else if strings.ToUpper(units) == "F" {
+		c := (i * 9 / 5) + 32
+		fmt.Printf("%.1fC = %.1fF\n", i, c)
+	} else {
+		return errors.New("invalid unit passed to conversion tool")
+	}
+
+	return err
+}
+
 // executeGenerator outputs a fake forecast as a string containing the value received
 // from the user input.
 func executeGenerator() {
@@ -118,7 +142,7 @@ func executeGenerator() {
 	if err != nil {
 		fmt.Println("Invalid input. Must enter numerical value.")
 	} else {
-		fakeForecastTool(input)
+		fmt.Printf("The current temperature is %s degrees.\n", input)
 	}
 
 	time.Sleep(2 * time.Second)
@@ -148,14 +172,14 @@ func executeWeatherRequest(option string) {
 			fmt.Println(err)
 			return
 		}
-		weather.outputWeeklyForecast(UnitsImperial)
+		weather.OutputWeeklyForecast(UnitsImperial)
 	case "3":
 		weather, err := getWeather(place, UnitsImperial, "daily")
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		weather.outputAvgWeather(UnitsImperial)
+		weather.OutputAvgWeather(UnitsImperial)
 	default:
 		fmt.Println("Invalid option passed to executeWeatherRequest.")
 	}
