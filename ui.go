@@ -160,26 +160,26 @@ func executeWeatherRequest(option string) {
 	}
 	switch option {
 	case "1":
-		weather, err := getWeather(place, UnitsImperial, "current")
+		weather, err := GetWeather(place, UnitsImperial, "current")
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		weather.Current.Output(UnitsImperial)
+		weather.Current.PrintCurrent(UnitsImperial)
 	case "2":
-		weather, err := getWeather(place, UnitsImperial, "daily")
+		weather, err := GetWeather(place, UnitsImperial, "daily")
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		weather.OutputWeeklyForecast(UnitsImperial)
+		weather.PrintWeeklyForecast(UnitsImperial)
 	case "3":
-		weather, err := getWeather(place, UnitsImperial, "daily")
+		weather, err := GetWeather(place, UnitsImperial, "daily")
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		weather.OutputAvgWeather(UnitsImperial)
+		weather.PrintAvgWeather(UnitsImperial)
 	default:
 		fmt.Println("Invalid option passed to executeWeatherRequest.")
 	}

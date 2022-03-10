@@ -6,6 +6,14 @@ import (
 	"net/url"
 )
 
+// ===========================================
+// The majority of this code has been authored
+// by David Cako. All additions and edits have
+// been marked with the appropriate comment.
+// ===========================================
+
+// EDIT: changed from 'LatLng' to 'Coordinates'
+
 type Coordinates struct {
 	Lat float64
 	Lng float64
@@ -34,16 +42,13 @@ func getCoordForPlace(place string) (Coordinates, error) {
 		return Coordinates{}, err
 	}
 
-	// defers call until the function completes
 	defer r.Body.Close()
 
 	var geocode GoogleGeocodeResponse
-
 	err = json.NewDecoder(r.Body).Decode(&geocode)
 	if err != nil {
 		return Coordinates{}, err
 	}
-
 	if geocode.Status != "OK" || len(geocode.Results) < 1 {
 		return Coordinates{}, err
 	}

@@ -7,6 +7,13 @@ import (
 	"time"
 )
 
+// ===========================================
+// The majority of this code has been authored
+// by David Cako. All additions and edits have
+// been marked with the appropriate comment.
+// ===========================================
+
+// OpenWeatherCondition stores the values for the 'Weather' object in all responses.
 type OpenWeatherCondition struct {
 	Id          int
 	Main        string
@@ -14,6 +21,7 @@ type OpenWeatherCondition struct {
 	Icon        string
 }
 
+// OpenWeatherResponseCurrent stores the weather values for the Current response.
 type OpenWeatherResponseCurrent struct {
 	// unix stamp - number of ms that have passed since 1 Dec 1969
 	Dt         int64
@@ -39,7 +47,8 @@ type OpenWeatherResponseCurrent struct {
 	}
 }
 
-func (o OpenWeatherResponseCurrent) Output(units string) {
+// (OpenWeatherResponseCurrent) Output returns a string containing current weather values.
+func (o OpenWeatherResponseCurrent) Output(units string) string {
 	var unitAbbr string
 
 	switch units {
@@ -49,9 +58,10 @@ func (o OpenWeatherResponseCurrent) Output(units string) {
 		unitAbbr = "F"
 	}
 
-	fmt.Printf("CURRENT WEATHER\nTemp: %.1f%s | Humidity: %d%% | %s\n", o.Temp, unitAbbr, o.Humidity, o.Weather[0].Description)
+	return fmt.Sprintf("Temp: %.1f%s | Humidity: %d%% | %s\n", o.Temp, unitAbbr, o.Humidity, o.Weather[0].Description)
 }
 
+// OpenWeatherResponseHourly stores the weather values for the Hourly responses.
 type OpenWeatherResponseHourly struct {
 	Dt         int64
 	Temp       float32
@@ -74,6 +84,7 @@ type OpenWeatherResponseHourly struct {
 	}
 }
 
+// (OpenWeatherResponseHourly) Output returns a string containing hourly weather values.
 func (o OpenWeatherResponseHourly) Output(units string) string {
 	var unitAbbr string
 
@@ -90,6 +101,7 @@ func (o OpenWeatherResponseHourly) Output(units string) string {
 		t.Month(), t.Day(), t.Hour(), o.Temp, unitAbbr, o.Humidity, o.Weather[0].Description)
 }
 
+// OpenWeatherResponseDaily stores the weather values for the Daily responses.
 type OpenWeatherResponseDaily struct {
 	Dt      int64
 	Sunrise int64
@@ -122,6 +134,7 @@ type OpenWeatherResponseDaily struct {
 	Snow       float32
 }
 
+// (OpenWeatherResponseDaily) Output returns a string containing daily weather values.
 func (o OpenWeatherResponseDaily) Output(units string) string {
 	var unitAbbr string
 
@@ -138,6 +151,7 @@ func (o OpenWeatherResponseDaily) Output(units string) string {
 		t.Month(), t.Day(), o.Temp.Max, unitAbbr, o.Temp.Min, unitAbbr, o.Humidity, o.Weather[0].Description)
 }
 
+// OpenWeatherResponseOneCall stores all responses received from OpenWeatherMap API requests.
 type OpenWeatherResponseOneCall struct {
 	Current *OpenWeatherResponseCurrent
 	Hourly  *[]OpenWeatherResponseHourly
@@ -147,7 +161,7 @@ type OpenWeatherResponseOneCall struct {
 // getWeather sends a single request to the OpenWeatherMap API for the weather
 // at the passed coordinates. Responses are stored in an OpenWeatherResponseOneCall
 // variable.
-func getWeather(c Coordinates, units, period string) (weather OpenWeatherResponseOneCall, err error) {
+func GetWeather(c Coordinates, units, period string) (weather OpenWeatherResponseOneCall, err error) {
 	exclude := []string{WeatherPeriodMinutely}
 
 	if period != WeatherPeriodCurrent {
@@ -181,6 +195,9 @@ func getWeather(c Coordinates, units, period string) (weather OpenWeatherRespons
 	return weather, err
 }
 
+// ADDITION: added AverageWeather
+
+// AverageWeather stores the average weather values for a 7-day week.
 type AverageWeather struct {
 	MinTemp  float32
 	MaxTemp  float32
@@ -189,18 +206,23 @@ type AverageWeather struct {
 	Uvi      float32
 }
 
-func (o OpenWeatherResponseOneCall) OutputAvgWeather(units string) {
+// ADDITION: added PrintAvgWeather
+
+// PrintAvgWeather calculates the average weather values for a 7-day week and prints
+// the output.
+func (o OpenWeatherResponseOneCall) PrintAvgWeather(units string) {
 	var min, max, uvi float32
 	var prs, hum int
 	for i, day := range *o.Daily {
-		if i == 7 {
+		if i == 8 {
 			break
+		} else if i != 0 {
+			min += day.Temp.Min
+			max += day.Temp.Max
+			uvi += day.Uvi
+			prs += day.Pressure
+			hum += day.Humidity
 		}
-		min += day.Temp.Min
-		max += day.Temp.Max
-		uvi += day.Uvi
-		prs += day.Pressure
-		hum += day.Humidity
 	}
 	avg := AverageWeather{min / 7, max / 7, prs / 7, hum / 7, uvi / 7}
 
@@ -217,7 +239,10 @@ func (o OpenWeatherResponseOneCall) OutputAvgWeather(units string) {
 		avg.MinTemp, unitAbbr, avg.MaxTemp, unitAbbr, avg.Pressure, avg.Humidity, avg.Uvi)
 }
 
-func (o OpenWeatherResponseOneCall) OutputWeeklyForecast(units string) {
+// ADDITION: added PrintWeeklyForecast
+
+// PrintWeeklyForecast generates a 7-day weather forecast and prints the output.
+func (o OpenWeatherResponseOneCall) PrintWeeklyForecast(units string) {
 	fmt.Println("WEEKLY FORECAST")
 
 	var unitAbbr string
@@ -239,4 +264,20 @@ func (o OpenWeatherResponseOneCall) OutputWeeklyForecast(units string) {
 				t.Month(), t.Day(), day.Temp.Min, unitAbbr, day.Temp.Max, unitAbbr, day.Humidity, day.Weather[0].Description)
 		}
 	}
+}
+
+// ADDITION: added PrintCurrent
+
+// (OpenWeatherResponseCurrent) Output prints the current weather values.
+func (o OpenWeatherResponseCurrent) PrintCurrent(units string) {
+	var unitAbbr string
+
+	switch units {
+	case UnitsMetric:
+		unitAbbr = "C"
+	case UnitsImperial:
+		unitAbbr = "F"
+	}
+
+	fmt.Printf("CURRENT WEATHER\nTemp: %.1f%s | Humidity: %d%% | %s\n", o.Temp, unitAbbr, o.Humidity, o.Weather[0].Description)
 }

@@ -62,6 +62,7 @@ func main() {
 	loop()
 }
 
+// loop enters the main menu. The majority of the logic is handled from that point onward.
 func loop() {
 	for {
 		// display main menu
@@ -69,6 +70,7 @@ func loop() {
 	}
 }
 
+// quitProgram prints a message before exiting normally.
 func quitProgram() {
 	fmt.Println("Goodbye..")
 	fmt.Println()
